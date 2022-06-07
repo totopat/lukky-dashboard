@@ -640,7 +640,7 @@ export default function Right({
         <div className="ref_left">
           <h5>Contract</h5>
           <p>Click button to copy address into clipboard.</p>
-          <h5>LUKKY Leprechaun ( LUKKY )</h5>
+          <h5>Lukkyverse ( LUKKY )</h5>
           <div
             style={{
               display: "flex",

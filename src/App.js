@@ -114,6 +114,7 @@ function App() {
 
     loadBlockdat();
   };
+
   const loadBlockdat = async () => {
     let chain;
     await web3.eth.getChainId().then((values) => {
