@@ -7,19 +7,34 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
+import Grid from '@mui/material/Grid';
 import LinearProgress from "@mui/material/LinearProgress";
-import truncate from "./truncate";
+import Tooltip from "@mui/material/Tooltip";
 import axios from "axios";
 import { useQuery } from "react-query";
-import { TokenAddress } from "./helper";
-import Tooltip from "@mui/material/Tooltip";
 
-function createData(num, address, bnb, usd) {
+import truncate from "./truncate";
+import { TokenAddress } from "config/constants";
+
+function createData(num: number, address: string, bnb: string, usd: number) {
   return { num, address, bnb, usd };
 }
-function createDatawithDate(num, date, address, bnb, usd) {
+function createDatawithDate(num: number, date: string, address: string, bnb: string, usd: number) {
   return { num, date, address, bnb, usd };
 }
+
+interface Props {
+  lastBuyer: string[],
+  contractTokenBalance: number,
+  usdEqui: number,
+  luckZoneWinners: any,
+  lastBuyers: any,
+  totalReflection: number[],
+  contractBnb: number,
+  lastBuyerData: any,
+  hardLimit: number,
+}
+
 
 export default function Right({
   lastBuyer,
@@ -31,12 +46,34 @@ export default function Right({
   contractBnb,
   lastBuyerData,
   hardLimit,
-}) {
-  const [luckyZW, setluckyZW] = useState([]);
-  const [_lastBuyers, set_lastBuyers] = useState([]);
-  const [Jackpot, setJackpot] = useState([]);
-  const [dailyWinner, setdailyWinner] = useState([]);
-  const [finaldailyWinner, setfinaldailyWinner] = useState([]);
+}: Props) {
+  const [luckyZW, setluckyZW] = useState<{
+    num: number;
+    address: string;
+    bnb: string;
+    usd: number;
+  }[]>([]);
+  const [_lastBuyers, set_lastBuyers] = useState<{
+    num: number;
+    address: string;
+    bnb: string;
+    usd: number;
+  }[]>([]);
+  const [Jackpot, setJackpot] = useState<{
+    user: string,
+    time: string,
+  }[]>([]);
+  const [dailyWinner, setdailyWinner] = useState<{
+    user: string,
+    time: string,
+  }[]>([]);
+  const [finaldailyWinner, setfinaldailyWinner] = useState<{
+    num: number;
+    date: string;
+    address: string;
+    bnb: string;
+    usd: number;
+  }[]>([]);
   const [copied, setcopied] = useState(false);
   const [time, settime] = useState([0, 0]);
   const endpoint =
@@ -58,7 +95,7 @@ export default function Right({
   }
   `;
 
-  const { Graphdata, isLoading, error } = useQuery("launches", async () => {
+  const { isLoading, error } = useQuery("launches", async () => {
     const response = await axios({
       url: endpoint,
       method: "POST",
@@ -80,11 +117,10 @@ export default function Right({
     return response.data.data;
   });
 
-  const getdate = (time) => {
-    let date = new Date(Number(time) * 1000);
-    date = date.toDateString();
-    date = date.split(" ");
-    let finaldate = date[2] + ", " + date[1] + " " + date[3];
+  const getdate = (time: string) => {
+    let date: string = new Date(Number(time) * 1000).toDateString();
+    let dates: string[] = date.split(" ");
+    let finaldate = dates[2] + ", " + dates[1] + " " + dates[3];
     return finaldate;
   };
 
@@ -92,7 +128,7 @@ export default function Right({
     let temp1 = [],
       temp2 = [],
       temp3 = [];
-    let bnb = parseFloat(25 / usdEqui).toFixed(2);
+    let bnb = (25 / usdEqui).toFixed(2);
     for (let i = 0; i < luckZoneWinners.length; i++) {
       temp1.push(
         createData(
@@ -125,7 +161,7 @@ export default function Right({
           i + 1,
           getdate(dailyWinner[i].time),
           truncate(dailyWinner[i].user),
-          parseFloat(100 / usdEqui).toFixed(2),
+          (100 / usdEqui).toFixed(2),
           100
         )
       );
@@ -137,10 +173,10 @@ export default function Right({
 
   const getTime = () => {
     let time = new Date().getTime();
-    time = time - lastBuyer[1];
+    time = time - parseInt(lastBuyer[1]);
     time = time / 1000;
     let minutes = time / 60;
-    let liveJackpot = lastBuyer[1] / 1000 + 600;
+    let liveJackpot = parseInt(lastBuyer[1]) / 1000 + 600;
     liveJackpot = liveJackpot - new Date().getTime() / 1000;
     let liveJackpotmin = 0,
       liveJackpotsec = 0;
@@ -156,13 +192,13 @@ export default function Right({
   };
 
   useEffect(() => {
-    if (lastBuyer[1] > 0) {
+    if (parseInt(lastBuyer[1]) > 0) {
       getTime();
     }
   }, [lastBuyer, new Date().getSeconds()]);
 
   return (
-    <section className="right">
+    <section>
       <div className="goldBox">
         <p
           style={{
@@ -189,8 +225,12 @@ export default function Right({
         Dashboard
       </h1>
       <p style={{ color: "#8094ae" }}>Welcome to LUKKY dashboard</p>
-      <div className="cards">
-        <div>
+      
+      <Grid container
+        spacing={2}
+        // sx={{ paddingRight: '25px' }}
+      >
+        <Grid item xs={12} lg={6} xl={4}>
           <h3 style={{ fontWeight: "700", color: "#364a63", marginTop: "0" }}>
             Live Jackpot
           </h3>
@@ -203,7 +243,7 @@ export default function Right({
                 marginBottom: "0",
               }}
             >
-              ${parseFloat(contractBnb * usdEqui).toFixed(2)}
+              ${(contractBnb * usdEqui).toFixed(2)}
             </p>
             <div className="flx">
               <div>
@@ -225,8 +265,8 @@ export default function Right({
                   }}
                 >
                   {contractBnb > 1
-                    ? parseFloat(contractBnb).toFixed(2)
-                    : parseFloat(contractBnb).toFixed(3)}
+                    ? contractBnb.toFixed(2)
+                    : contractBnb.toFixed(3)}
                 </p>
               </div>
               <div style={{ paddingLeft: "20px" }}>
@@ -260,8 +300,8 @@ export default function Right({
               Time Left: {time[2]} minutes {time[1]} seconds
             </p>
           </div>
-        </div>
-        <div>
+        </Grid>
+        <Grid item xs={12} lg={6} xl={4}>
           <h3 style={{ fontWeight: "700", color: "#364a63", marginTop: "0" }}>
             Winner's Share
           </h3>
@@ -277,7 +317,7 @@ export default function Right({
                 marginBottom: "0",
               }}
             >
-              ${parseFloat((contractBnb * usdEqui * 55) / 100).toFixed(2)}
+              ${((contractBnb * usdEqui * 55) / 100).toFixed(2)}
             </p>
             <div className="flx">
               <div>
@@ -299,8 +339,8 @@ export default function Right({
                   }}
                 >
                   {contractBnb > 1
-                    ? parseFloat((contractBnb * 55) / 100).toFixed(2)
-                    : parseFloat((contractBnb * 55) / 100).toFixed(3)}
+                    ? ((contractBnb * 55) / 100).toFixed(2)
+                    : ((contractBnb * 55) / 100).toFixed(3)}
                 </p>
               </div>
               <div style={{ paddingLeft: "20px" }}>
@@ -335,8 +375,8 @@ export default function Right({
               {Jackpot.length > 0 ? truncate(Jackpot[0].user) : "0x000...0000"}
             </p>
           </div>
-        </div>
-        <div>
+        </Grid>
+        <Grid item xs={12} lg={6} xl={4}>
           <h3 style={{ fontWeight: "700", color: "#364a63", marginTop: "0" }}>
             Last Buyer
           </h3>
@@ -409,8 +449,8 @@ export default function Right({
               {"  "}({time[0]} mins ago)
             </p>
           </div>
-        </div>
-      </div>
+        </Grid>
+      </Grid>
       <div className="progress">
         <h6>Lightning Strike Target: ${hardLimit * usdEqui}</h6>
         <Box display="flex" alignItems="center">
@@ -424,8 +464,8 @@ export default function Right({
           <Box minWidth={35}>
             <div>
               {(contractBnb * 100) / hardLimit > 1
-                ? parseFloat((contractBnb * 100) / hardLimit).toFixed(2)
-                : parseFloat((contractBnb * 100) / hardLimit).toFixed(4)}
+                ? ((contractBnb * 100) / hardLimit).toFixed(2)
+                : ((contractBnb * 100) / hardLimit).toFixed(4)}
               %
             </div>
           </Box>
@@ -516,7 +556,7 @@ export default function Right({
             )}
           </span>
           <span style={{ fontSize: "1.125rem", fontWeight: "550" }}>
-            {parseFloat((((contractBnb * 55) / 100) * 9) / 10).toFixed(3)} BNB
+            {((((contractBnb * 55) / 100) * 9) / 10).toFixed(3)} BNB
           </span>
         </div>
         <div>
@@ -524,14 +564,14 @@ export default function Right({
             Winning buy at{" "}
             {Jackpot.length > 0
               ? new Date(Number(Jackpot[0].time) * 1000)
-                  .toGMTString()
+                  .toUTCString()
                   .split(" ")[4]
               : "09:38:07 "}
             <span> </span>GMT (
             {Jackpot.length > 0 ? getdate(Jackpot[0].time) : " 13, May 2022"})
           </span>
           <span>
-            {parseFloat(
+            {(
               (((contractBnb * usdEqui * 55) / 100) * 9) / 10
             ).toFixed(2)}{" "}
             USD
@@ -636,8 +676,8 @@ export default function Right({
           If no one gets lucky, we all get LUKKY!
         </p>
       </div>
-      <div className="reflection">
-        <div className="ref_left">
+      <Grid container className="reflection">
+        <Grid item xs={12} sm={12} md={12} lg={6} className="ref_left">
           <h5>Contract</h5>
           <p>Click button to copy address into clipboard.</p>
           <h5>Lukkyverse ( LUKKY )</h5>
@@ -671,8 +711,8 @@ export default function Right({
               </span>
             </Tooltip>
           </div>
-        </div>
-        <div className="ref_right">
+        </Grid>
+        <Grid item xs={12} sm={12} md={12} lg={6} className="ref_right">
           <h5>Total Reflections Paid Out</h5>
           <p style={{ marginBottom: "0" }}>
             Total reflections for the life of the contract
@@ -680,7 +720,7 @@ export default function Right({
           <div className="treflect">
             <div>
               <span className="f">
-                {parseFloat(totalReflection[0] / 1e9).toFixed(2)}
+                {(totalReflection[0] / 1e9).toFixed(2)}
               </span>
               <span className="g">LUKKY</span>
             </div>
@@ -689,8 +729,8 @@ export default function Right({
               <span className="g">USD</span>
             </div>
           </div>
-        </div>
-      </div>
+        </Grid>
+      </Grid>
     </section>
   );
 }

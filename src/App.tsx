@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import {
-  chainID,
-  abi,
-  TokenAddress,
-  routerabi,
-  pancakerouterv2,
-} from "./helper";
 import Web3Modal from "web3modal";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import Home from "./Home";
 import axios from "axios";
 import { useQuery } from "react-query";
+import Home from "./Home";
+import routerAbi from 'config/abi/unirouter.json'
+import lukkyAbi from 'config/abi/lukky.json'
+import {
+  chainID,
+  TokenAddress,
+  pancakerouterv2,
+} from "config/constants";
 
-let web3Modal;
+let web3Modal: Web3Modal;
+let web3: any;
 let provider;
-let web3;
+
 async function init() {
   const providerOptions = {
     walletconnect: {
@@ -41,7 +42,7 @@ function App() {
     "0x0000000000000000010000000000000000000000"
   );
   const [chainId, setchainId] = useState(0);
-  const [Token, setToken] = useState({});
+  const [Token, setToken] = useState<any>({});
   const [active, setactive] = useState(false);
   const [currentBalance, setcurrentBalance] = useState(0);
   const [price, setprice] = useState(0);
@@ -52,15 +53,15 @@ function App() {
   ]);
   const [contractTokenBalance, setcontractTokenBalance] = useState(0);
   const [usdEqui, setusdEqui] = useState(0);
-  const [luckZoneWinners, setluckZoneWinners] = useState([]);
-  const [lastBuyers, setlastBuyers] = useState([]);
+  const [luckZoneWinners, setluckZoneWinners] = useState<any[]>([]);
+  const [lastBuyers, setlastBuyers] = useState<any[]>([]);
   const [walletbal, setwalletbal] = useState(0);
-  const [router, setrouter] = useState({});
+  const [router, setrouter] = useState<any>({});
   const [totalReflection, settotalReflection] = useState([0, 0]);
   const [contractBnb, setcontractBnb] = useState(0);
-  const [lastBuyerData, setlastBuyerData] = useState([]);
+  const [lastBuyerData, setlastBuyerData] = useState<number[]>([]);
   const [hardLimit, sethardLimit] = useState(0);
-  const [totalBuySell, settotalBuySell] = useState();
+  const [totalBuySell, settotalBuySell] = useState<number | undefined>();
 
   const endpoint =
     "https://api.thegraph.com/subgraphs/name/black-fire07/jackpot";
@@ -93,12 +94,13 @@ function App() {
     return response.data.data;
   });
 
+  async function fet() {
+    await init();
+    await loadBlockdata();
+  }
+
   useEffect(() => {
     if (active) {
-      async function fet() {
-        await init();
-        await loadBlockdata();
-      }
       fet();
     }
   }, [active]);
@@ -117,24 +119,24 @@ function App() {
 
   const loadBlockdat = async () => {
     let chain;
-    await web3.eth.getChainId().then((values) => {
+    await web3.eth.getChainId().then((values: number) => {
       setchainId(values);
       chain = values;
     });
 
     if (chain == chainID) {
       const accounts = await new web3.eth.getAccounts();
-      await new web3.eth.getBalance(accounts[0]).then((val) => {
+      await new web3.eth.getBalance(accounts[0]).then((val: number) => {
         setwalletbal(val);
       });
 
-      await new web3.eth.getBalance(TokenAddress).then((val) => {
+      await new web3.eth.getBalance(TokenAddress).then((val: number) => {
         setcontractBnb(val / 1e18);
       });
       setaddress(accounts[0]);
-      const token = new web3.eth.Contract(abi, TokenAddress);
+      const token = new web3.eth.Contract(lukkyAbi, TokenAddress);
       setToken(token);
-      const _router = new web3.eth.Contract(routerabi, pancakerouterv2);
+      const _router = new web3.eth.Contract(routerAbi, pancakerouterv2);
       setrouter(_router);
       const bal = await token.methods.balanceOf(accounts[0]).call();
       setcurrentBalance(Math.floor(bal / 1e9));
@@ -150,9 +152,7 @@ function App() {
       const contractBalance = await token.methods
         .balanceOf(TokenAddress)
         .call();
-      setcontractTokenBalance(
-        parseFloat(Number(contractBalance) / 1e9).toFixed(2)
-      );
+      setcontractTokenBalance(contractBalance / 1e9);
 
       const reflection = await token.methods.totalFees().call();
 
@@ -166,12 +166,13 @@ function App() {
       const usdEquivalent = await token.methods.usdEquivalent(1).call();
       setusdEqui(usdEquivalent);
       const finalPrice = Number(usdEquivalent) / Number(_pricePerToken[1]);
-      setprice(parseFloat(finalPrice).toFixed(4));
+      setprice(finalPrice);
       let tfUsd = (test[0] / 1e18) * usdEquivalent;
+      let tsUsd;
       if (tfUsd > 1) {
-        tfUsd = parseFloat(tfUsd).toFixed(2);
+        tsUsd = tfUsd.toFixed(2);
       } else {
-        tfUsd = parseFloat(tfUsd).toFixed(5);
+        tsUsd = tfUsd.toFixed(5);
       }
       settotalReflection([reflection, tfUsd]);
       let _luckyZoneWinners = [];
@@ -194,7 +195,7 @@ function App() {
 
       const lastBuyerBal = await token.methods.balanceOf(_lastBuyer).call();
 
-      await new web3.eth.getBalance(_lastBuyer).then((val) => {
+      await new web3.eth.getBalance(_lastBuyer).then((val: number) => {
         setlastBuyerData([val / 1e18, lastBuyerBal / 1e9]);
       });
 
@@ -218,9 +219,7 @@ function App() {
       const contractBalance = await Token.methods
         .balanceOf(TokenAddress)
         .call();
-      setcontractTokenBalance(
-        parseFloat(Number(contractBalance) / 1e9).toFixed(2)
-      );
+      setcontractTokenBalance(Number(contractBalance) / 1e9);
       const reflection = await Token.methods.totalFees().call();
 
       const test = await router.methods
@@ -230,13 +229,14 @@ function App() {
         ])
         .call();
 
-      let tfUsd = (test[0] / 1e18) * usdEqui;
+      let tfUsd: number = (test[0] / 1e18) * usdEqui;
+      let tsUsd;
       if (tfUsd > 1) {
-        tfUsd = parseFloat(tfUsd).toFixed(2);
+        tsUsd = tfUsd.toFixed(2);
       } else {
-        tfUsd = parseFloat(tfUsd).toFixed(5);
+        tsUsd = tfUsd.toFixed(5);
       }
-      settotalReflection([reflection, tfUsd]);
+      settotalReflection([reflection, tsUsd]);
 
       const _lastBuyer = await Token.methods._lastBuyer().call();
       const _lastBuyerTime = await Token.methods._lastBuyTimestamp().call();
@@ -244,27 +244,31 @@ function App() {
 
       const lastBuyerBal = await Token.methods.balanceOf(_lastBuyer).call();
 
-      await new web3.eth.getBalance(_lastBuyer).then((val) => {
+      await new web3.eth.getBalance(_lastBuyer).then((val: number) => {
         setlastBuyerData([val / 1e18, lastBuyerBal / 1e9]);
       });
     }
   }, 30000);
 
-  useEffect(async () => {
-    if (lastBuyer[1] > 0) {
-      let _lastBuyers = [];
+  useEffect(() => {
+    async function setValues() {
+      if (lastBuyer[1] > 0) {
+        let _lastBuyers = [];
 
-      for (let i = 0; i < 12; i++) {
-        _lastBuyers.push(await Token.methods.lastBuyers(i).call());
-      }
-      setlastBuyers(_lastBuyers);
-      let _luckyZoneWinners = [];
+        for (let i = 0; i < 12; i++) {
+          _lastBuyers.push(await Token.methods.lastBuyers(i).call());
+        }
+        setlastBuyers(_lastBuyers);
+        let _luckyZoneWinners = [];
 
-      for (let i = 0; i < 12; i++) {
-        _luckyZoneWinners.push(await Token.methods.lastWinners(i).call());
+        for (let i = 0; i < 12; i++) {
+          _luckyZoneWinners.push(await Token.methods.lastWinners(i).call());
+        }
+        setluckZoneWinners(_luckyZoneWinners);
       }
-      setluckZoneWinners(_luckyZoneWinners);
     }
+
+    setValues();
   }, [lastBuyer[1]]);
 
   const changeActive = () => {

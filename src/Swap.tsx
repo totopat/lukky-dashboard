@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import CancelIcon from "@mui/icons-material/Cancel";
 import Box from "@mui/material/Box";
+import CancelIcon from "@mui/icons-material/Cancel";
 import SettingsIcon from "@mui/icons-material/Settings";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import bnblogo from "./bnb.svg";
@@ -21,14 +21,19 @@ const style = {
   p: 2,
 };
 
+interface Props {
+  walletbal: number,
+  pricePerToken: any,
+  usdEqui: any,
+  price: any,
+}
+
 export default function Swap({
   walletbal,
   pricePerToken,
   usdEqui,
   price,
-  swapEthtoLUKKY,
-  swapLUKKYToEth,
-}) {
+}: Props) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -54,7 +59,7 @@ export default function Swap({
   };
 
   return (
-    <section className="right" style={{ textAlign: "center" }}>
+    <section style={{ textAlign: "center" }}>
       <Modal
         open={open}
         onClose={handleClose}
@@ -81,7 +86,7 @@ export default function Swap({
             <input
               type="number"
               value={slippage}
-              onChange={(e) => setslippage(e.target.value)}
+              onChange={(e) => setslippage(parseFloat(e.target.value))}
             />
             <span style={{ alignSelf: "center" }}>%</span>
           </div>
@@ -90,7 +95,7 @@ export default function Swap({
             <input
               type="number"
               value={tdeadline}
-              onChange={(e) => settdeadline(e.target.value)}
+              onChange={(e) => settdeadline(parseFloat(e.target.value))}
             />
             <span style={{ alignSelf: "center" }}>minutes</span>
           </div>
@@ -120,11 +125,11 @@ export default function Swap({
             <>
               <input
                 type="number"
-                value={bnb > 0 ? bnb : null}
+                value={bnb > 0 ? bnb : undefined}
                 onChange={(e) => {
-                  setbnb(e.target.value);
+                  setbnb(parseFloat(e.target.value));
 
-                  setLUKKY(pricePerToken * e.target.value);
+                  setLUKKY(pricePerToken * parseFloat(e.target.value));
                   // console.log(pricePerToken * e.target.value);
                 }}
               />
@@ -138,10 +143,10 @@ export default function Swap({
             <>
               <input
                 type="number"
-                value={LUKKY > 0 ? LUKKY : null}
+                value={LUKKY > 0 ? LUKKY : undefined}
                 onChange={(e) => {
-                  setLUKKY(e.target.value);
-                  setbnb(e.target.value / pricePerToken);
+                  setLUKKY(parseFloat(e.target.value));
+                  setbnb(parseFloat(e.target.value) / pricePerToken);
                 }}
               />
               <div>
@@ -153,7 +158,7 @@ export default function Swap({
         </div>
         <div className="LUKKYBal">
           <span>sValue: ${!reverse ? bnb * usdEqui : LUKKY * price} USD</span>
-          <span>Balance: {parseFloat(walletbal / 1e18).toFixed(2)} BNB</span>
+          <span>Balance: {(walletbal / 1e18).toFixed(2)} BNB</span>
         </div>
         <div>
           <KeyboardArrowDownIcon
@@ -177,10 +182,10 @@ export default function Swap({
             <>
               <input
                 type="number"
-                value={bnb > 0 ? bnb : null}
+                value={bnb > 0 ? bnb : undefined}
                 onChange={(e) => {
-                  setbnb(e.target.value);
-                  setLUKKY(pricePerToken * e.target.value);
+                  setbnb(parseFloat(e.target.value));
+                  setLUKKY(pricePerToken * parseFloat(e.target.value));
                 }}
               />
               <div>
@@ -192,10 +197,10 @@ export default function Swap({
             <>
               <input
                 type="number"
-                value={LUKKY > 0 ? LUKKY : null}
+                value={LUKKY > 0 ? LUKKY : undefined}
                 onChange={(e) => {
-                  setLUKKY(e.target.value);
-                  setbnb(e.target.value / pricePerToken);
+                  setLUKKY(parseFloat(e.target.value));
+                  setbnb(parseFloat(e.target.value) / pricePerToken);
                 }}
               />
 

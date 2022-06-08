@@ -22,15 +22,15 @@ body::-webkit-scrollbar {
   padding: 25px;
 }
 
-@media screen and (max-width: 1235px) {
+@media screen and (max-width: 1200px) {
   .left {
     display: none !important;
     width: 0% !important;
   }
-  .right {
+  /* .right {
     width: 100% !important;
     margin-left: 20px !important;
-  }
+  } */
   .cards {
     flex-wrap: wrap;
   }
@@ -39,7 +39,8 @@ body::-webkit-scrollbar {
 .reflection {
   border: 1px solid #dbdfea;
   border-radius: 4px;
-  margin: 30px 21.5px;
+  /* margin: 30px 21.5px; */
+  margin: 30px 0px;
   margin-left: 0;
   display: flex;
   flex-direction: row;
@@ -126,9 +127,10 @@ body::-webkit-scrollbar {
   margin-bottom: 5px;
 }
 .right {
-  width: 80%;
-  margin-left: 25%;
-  padding: 10px;
+  width: 100%;
+  /* margin-left: 2%; */
+  /* padding: 10px; */
+  padding: 0 3%;
   margin-top: 2%;
   text-align: left;
   color: #364a63;
@@ -168,15 +170,17 @@ body::-webkit-scrollbar {
 
 .tableContainer {
   box-shadow: none !important;
-  padding: 5px;
-  width: 95% !important;
+  /* padding: 5px; */
+  padding: 5px 0;
+  /* width: 95% !important; */
+  
 }
 
 .divider {
   border-top: 1px solid #e5e9f2 !important;
   margin: 28px 0;
   display: block;
-  margin-right: 25px;
+  /* margin-right: 25px; */
 }
 
 .winBox {
@@ -184,7 +188,7 @@ body::-webkit-scrollbar {
   border: 1px solid #dbdfea;
   border-radius: 4px;
   margin: 20px auto;
-  margin-right: 25px;
+  /* margin-right: 25px; */
   color: #526484;
   font-weight: 450;
 }
@@ -213,7 +217,7 @@ body::-webkit-scrollbar {
   font-size: 0.875rem;
   font-weight: 400;
   color: #526484;
-  margin-right: 25px;
+  /* margin-right: 25px; */
 }
 
 .progress {
@@ -221,7 +225,7 @@ body::-webkit-scrollbar {
   margin-top: 20px;
   padding: 30px;
   border-radius: 4px;
-  margin-right: 25px;
+  /* margin-right: 25px; */
 }
 
 .progress h6 {
